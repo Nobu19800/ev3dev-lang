@@ -79,6 +79,9 @@ function Device:init(sys_class_dir, pattern, match)
                matched = false
               end
             end
+            if success then
+              break
+            end
             -- empty match list is success
             if (empty) then
               success = true
@@ -245,7 +248,7 @@ function Motor:init(port, motor_types)
 
   if (self:connected()) then
     self._type = self:getAttrString("driver_name")
-    self._port = self:getAttrString("port_name")
+    --self._port = self:getAttrString("port_name")
   else
     self._type = nil
     self._port = nil
@@ -598,7 +601,7 @@ function ServoMotor:init(port)
 
   if (self:connected()) then
     self._type = self:getAttrString("driver_name")
-    self._port = self:getAttrString("port_name")
+    --self._port = self:getAttrString("port_name")
   else
     self._type = nil
     self._port = nil
@@ -695,9 +698,9 @@ Sensor.NXTSound       = "lego-nxt-sound"
 Sensor.NXTUltrasonic  = "lego-nxt-ultrasonic"
 
 Sensor.EV3Touch       = "lego-ev3-touch"
-Sensor.EV3Color       = "lego-ev3-uart-29"
-Sensor.EV3Ultrasonic  = "lego-ev3-uart-30"
-Sensor.EV3Gyro        = "lego-ev3-uart-32"
+Sensor.EV3Color       = "lego-ev3-color"
+Sensor.EV3Ultrasonic  = "lego-ev3-us"
+Sensor.EV3Gyro        = "lego-ev3-gyro"
 Sensor.EV3Infrared    = "lego-ev3-uart-33"
 
 function Sensor:init(port, sensor_types)
@@ -711,7 +714,7 @@ function Sensor:init(port, sensor_types)
 
   if (self:connected()) then
     self._type = self:getAttrString("driver_name")
-    self._port = self:getAttrString("port_name")
+    --self._port = self:getAttrString("port_name")
   else
     self._type = nil
     self._port = nil
@@ -918,7 +921,13 @@ function PowerSupply:init(device)
   if (file ~= nil) then 
     file:close()
   else
-    self._path = nil
+    self._path = sys_power.."lego-ev3-battery/"
+    local file = io.open(self._path.."voltage_now")
+    if (file ~= nil) then 
+      file:close()
+    else
+      self._path = nil
+    end
   end
 end
 
