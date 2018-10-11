@@ -60,6 +60,11 @@ function Device:init(sys_class_dir, pattern, match)
     local success = true
     if (match ~= nil) then      
       for attr,matches in pairs(match) do
+        if attr == "address" then
+          if #matches == 1 then
+            table.insert(matches, "ev3-ports:"..matches[1])
+          end
+        end
         success = false
         
         -- read attribute
@@ -78,9 +83,6 @@ function Device:init(sys_class_dir, pattern, match)
               else 
                matched = false
               end
-            end
-            if success then
-              break
             end
             -- empty match list is success
             if (empty) then
@@ -237,8 +239,8 @@ Motor.PositionModeAbsolute = "absolute"
 Motor.PositionModeRelative = "relative"
 
 function Motor:init(port, motor_types)
-
-  local m = { port_name = { port } }
+  
+  local m = { address = { port } }
   
   if (motor_types ~= nil) then
     m["driver_name"] = motor_types
@@ -248,7 +250,7 @@ function Motor:init(port, motor_types)
 
   if (self:connected()) then
     self._type = self:getAttrString("driver_name")
-    --self._port = self:getAttrString("port_name")
+    self._port = self:getAttrString("address")
   else
     self._type = nil
     self._port = nil
@@ -330,7 +332,7 @@ function Motor:setPolarity(value)
 end
 
 function Motor:portName()
-  return self:getAttrString("port_name")
+  return self:getAttrString("address")
 end
 
 function Motor:position()
@@ -494,13 +496,13 @@ DCMotor.polarityInverted = "inverted"
 
 function DCMotor:init(port)
 
-  local m = { port_name = { port } }
+  local m = { address = { port } }
   
   Device.init(self, "dc-motor", "motor", m)
 
   if (self:connected()) then
     self._type = self:getAttrString("driver_name")
-    self._port = self:getAttrString("port_name")
+    self._port = self:getAttrString("address")
   else
     self._type = nil
     self._port = nil
@@ -558,7 +560,7 @@ function DCMotor:setPolarity(value)
 end
 
 function DCMotor:portName()
-  return self:getAttrString("port_name")
+  return self:getAttrString("address")
 end
 
 function DCMotor:rampDownMs()
@@ -595,13 +597,13 @@ ServoMotor.polarityInverted = "inverted"
 
 function ServoMotor:init(port)
 
-  local m = { port_name = { port } }
+  local m = { address = { port } }
   
   Device.init(self, "servo-motor", "motor", m)
 
   if (self:connected()) then
     self._type = self:getAttrString("driver_name")
-    --self._port = self:getAttrString("port_name")
+    self._port = self:getAttrString("address")
   else
     self._type = nil
     self._port = nil
@@ -663,7 +665,7 @@ function ServoMotor:setPolarity(value)
 end
 
 function ServoMotor:portName()
-  return self:getAttrString("port_name")
+  return self:getAttrString("address")
 end
 
 function ServoMotor:position()
@@ -704,7 +706,7 @@ Sensor.EV3Gyro        = "lego-ev3-gyro"
 Sensor.EV3Infrared    = "lego-ev3-uart-33"
 
 function Sensor:init(port, sensor_types)
-  local m = { port_name = { port } }
+  local m = { address = { port } }
   
   if (sensor_types ~= nil) then
     m["driver_name"] = sensor_types
@@ -714,7 +716,7 @@ function Sensor:init(port, sensor_types)
 
   if (self:connected()) then
     self._type = self:getAttrString("driver_name")
-    --self._port = self:getAttrString("port_name")
+    self._port = self:getAttrString("address")
   else
     self._type = nil
     self._port = nil
@@ -783,7 +785,7 @@ function Sensor:numValues()
 end
 
 function Sensor:portName()
-  return self:getAttrString("port_name")
+  return self:getAttrString("address")
 end
 
 function Sensor:units()
@@ -801,7 +803,7 @@ end
 I2CSensor = class(Sensor)
 
 function I2CSensor:init(port, i2cAddress)
-  local m = { port_name = { port } }
+  local m = { address = { port } }
   m["driver_name"] = { "nxt-i2c-sensor" }
   
   if (i2cAddress ~= nil) then
@@ -812,7 +814,7 @@ function I2CSensor:init(port, i2cAddress)
 
   if (self:connected()) then
     self._type = self:getAttrString("driver_name")
-    self._port = self:getAttrString("port_name")
+    self._port = self:getAttrString("address")
   else
     self._type = nil
     self._port = nil
